@@ -111,4 +111,34 @@ function get_geocode_address($postid) {
 	return $martygeocoder;
 }
 
+
+
+
+
+
+// Jay Cackowski's Automatic
+
+
+add_action( 'save_post', 'martygeocoder_save_blank' );
+function martygeocoder_save_blank( $post_id, $post ) {
+        $martygeocoderaddress = get_post_meta($post_id, 'martygeocoderaddress', TRUE);
+        $streetaddress = get_post_meta($post_id, 'streetaddress', TRUE);
+        $zipcode = get_post_meta($post_id, 'zipcode', TRUE);
+        if (!$martygeocoderaddress) {
+            add_post_meta($post_id, 'martygeocoderaddress', ($streetaddress.', Royal Oak, MI, '.$zipcode), TRUE);
+        }
+        elseif ($martygeocoderaddress){
+            update_post_meta($post_id, 'martygeocoderaddress', ($streetaddress.', Royal Oak, MI, '.$zipcode));
+        }
+}
+
+function add_auto_geocode_script() {
+        wp_enqueue_script('auto_geocode_script', get_bloginfo('template_url').'/customjs/geocode-onready.js', array('jquery'));
+}
+add_action( 'admin_enqueue_scripts', 'add_auto_geocode_script' );
+
+
+
+
+
  ?>
