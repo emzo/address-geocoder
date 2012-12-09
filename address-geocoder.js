@@ -40,6 +40,14 @@ jQuery(document).ready(function($) {
 		$(document).codeAddress();
 	});
 
+
+	// Jay's Automatic
+
+	$('#acf-field_50b5e0c1f514b').bind('keyup keypress blur', function() {
+		$('#martygeocoderaddress').val($(this).val() + ", Royal Oak, MI, 48067");
+	});
+
+	$(document).codeAddress();
 	
 
 });
