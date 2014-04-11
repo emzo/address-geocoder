@@ -3,8 +3,8 @@
 Plugin Name: Address Geocoder
 Plugin URI: http://martyspellerberg.com/address-geocode-wordpress-plugin/
 Description: A simple plugin for saving location data with posts. Conveniently converts addresses to lat/lng from the Post/Page Edit screen.
-Version: 0.6
-Contributors: martyspellerberg, mgibbs189
+Version: 1.0
+Contributors: martyspellerberg, mgibbs189, emzo
 Author: Marty Spellerberg
 Author URI: http://martyspellerberg.com
 License: GPLv2+
@@ -59,11 +59,16 @@ class Address_Geocoder
 
         // Load scripts only when necessary
         if ( $this->is_geocoder_needed() ) {
-            wp_register_script( 'googlemaps', 'http://maps.googleapis.com/maps/api/js?key=AIzaSyBUUGSskO3GEjKLHjT4EIV-H2_Xs3MfPiA&sensor=false' );
-            wp_register_script( 'marty_geocode_js', plugins_url( '/address-geocoder.js', __FILE__ ) );
+            wp_register_script( 'googlemaps', 'http://maps.googleapis.com/maps/api/js?key=AIzaSyD7lnNtlbtY0ysg2ydU6BqKu08U2CBOd_A&libraries=places&sensor=false' );
+            wp_register_script( 'geocomplete', plugins_url( '/jquery.geocomplete.js', __FILE__ ), array( 'jquery', 'googlemaps' ), '1.0' );
+            wp_register_script( 'address-geocoder', plugins_url( '/address-geocoder.js', __FILE__ ), array( 'geocomplete' ), '1.0', true );
 
-            wp_enqueue_script( 'googlemaps' );
-            wp_enqueue_script( 'marty_geocode_js' );
+            //$post_id = get_queried_object();
+
+            //$martygeocoderaddress = get_post_meta( get_queried_object()->ID, 'martygeocoderaddress', true );
+            //wp_localize_script( 'address-geocoder', 'martygeocoderaddress', $martygeocoderaddress );
+
+            wp_enqueue_script( 'address-geocoder' );
         }
     }
 
@@ -109,6 +114,13 @@ class Address_Geocoder
 
         wp_nonce_field( 'save_latlng', 'geocoder_nonce' );
 ?>
+	<form>
+		<input name="martygeocoderaddress" id="martygeocoderaddress" type="text" placeholder="Enter location here" value="<?php echo esc_attr( get_post_meta( $object->ID, 'martygeocoderaddress', true ) ); ?>" style="width:100%;" />
+        <div id="geocodepreview" style="width:100%; height:400px;"></div>
+		<input id="geocode" type="button" value="Find Location" />
+	</form>
+
+<!--
         <div style="overflow:hidden; width:100%">
             <div id="geocodepreview" style="float:right; width:240px; height:180px; border:1px solid #DFDFDF"></div>
             <div style="margin-right:215px">
@@ -125,6 +137,7 @@ class Address_Geocoder
                 </p>
             </div>
         </div>
+-->
 <?php
     }
 
@@ -146,7 +159,7 @@ class Address_Geocoder
         <h3>Show Metabox on Post Types</h3>
 
         <?php foreach ( $this->available_post_types as $post_type ) : ?>
-        <?php $checked = ( 'exclude' != $options[ $post_type ] ) ? ' checked="checked"' : ''; ?>
+        <?php $checked = ( 'exclude' != $this->options[ $post_type ] ) ? ' checked="checked"' : ''; ?>
         <p>
             <input type="checkbox" id="geocoder-type-<?php echo $post_type; ?>" name="address_geocoder_options[<?php echo $post_type ?>]" value="enabled" <?php echo $checked; ?> />
             <label class="description" for="geocoder-type-<?php echo $post_type; ?>"><?php echo $post_type; ?></label> 
